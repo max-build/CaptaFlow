@@ -5,18 +5,28 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' ## hide tensorflow messages in interpre
 import asyncio
 import websockets #type:ignore
 import re
-from transformers import pipeline
+from transformers import pipeline #type:ignore
 import re as regex
 import time
 import logging
 import boto3 #type:ignore
-from botocore.exceptions import ClientError #type:ignore
+from io import StringIO 
+# import boto3 #type:ignore
+# from botocore.exceptions import ClientError #type:ignore
 
 reset_timer = False
 
 with open("files/words_alpha.txt", "r") as words_alpha:
     lines = [k.strip() for k in words_alpha]
     word_db = set(lines) ##> set gives lookups O(1) timing
+
+def export_to_s3(dataframe):
+    bucket = "dataframe-container"
+    csv_buffer = StringIO()
+    dataframe.to_csv(csv_buffer)
+    s3_resource = boto3.resource('s3')
+    s3_resource.Object(bucket, f'report_{report_id}.csv').put(Body=csv_buffer.getvalue())
+
 
 # TODO:
     # set trigger for ending ingestion, exporting results (maybe locally at first to .csv or something)
@@ -39,7 +49,12 @@ df = pd.DataFrame({
     # "Disgust": pd.Series(dtype="float"),
     # "Pessimism": pd.Series(dtype="float"),
     "Sadness": pd.Series(dtype="float"),
+    "report_id": pd.Series(dtype="datetime64[ns]")
 })
+
+##> report_id stamper, creates column where every row contains this value so AWS quicksuite can differentiate the reports. 
+report_id = datetime.now() ##> fetches timestamp 
+report_id = report_id.strftime("%Y-%m-%d %H:%M:%S") # converts timestamp to string
 
 # async def count_up(): ##> timer, used to detect if chat has slowed down the point the stream can be considered over, triggers dataframe to be pushed to S3. 
 #     for k in range(30, 0, -1):
@@ -51,29 +66,29 @@ df = pd.DataFrame({
 
 
 
-def upload_file(file_name, bucket, object_name=None): ##> uploads .csv form of dataframe to S3 bucket (for data pipeline)
-    ##> bucket key: s3://arn:aws:s3:us-east-1:398019065207:accesspoint/ingestion-from-batch-processor
-    ##> pass this as arg for bucket when I use this 
-    """Upload a file to an S3 bucket
+# def upload_file(file_name, bucket, object_name=None): ##> uploads .csv form of dataframe to S3 bucket (for data pipeline)
+#     ##> bucket key: s3://arn:aws:s3:us-east-1:398019065207:accesspoint/ingestion-from-batch-processor
+#     ##> pass this as arg for bucket when I use this 
+#     """Upload a file to an S3 bucket
 
-    :param file_name: File to upload
-    :param bucket: Bucket to upload to
-    :param object_name: S3 object name. If not specified then file_name is used
-    :return: True if file was uploaded, else False
-    """
+#     :param file_name: File to upload
+#     :param bucket: Bucket to upload to
+#     :param object_name: S3 object name. If not specified then file_name is used
+#     :return: True if file was uploaded, else False
+#     """
 
-    # If S3 object_name was not specified, use file_name
-    if object_name is None:
-        object_name = os.path.basename(file_name)
+#     # If S3 object_name was not specified, use file_name
+#     if object_name is None:
+#         object_name = os.path.basename(file_name)
 
-    # Upload the file
-    s3_client = boto3.client('s3')
-    try:
-        response = s3_client.upload_file(file_name, bucket, object_name)
-    except ClientError as e:
-        logging.error(e)
-        return False
-    return True
+#     # Upload the file
+#     s3_client = boto3.client('s3')
+#     try:
+#         response = s3_client.upload_file(file_name, bucket, object_name)
+#     except ClientError as e:
+#         logging.error(e)
+#         return False
+#     return True
 
 class batch():
     def __init__(self):
@@ -273,7 +288,8 @@ class batch():
             round(b1.anger, 2), 
             # round(b1.disgust, 2), 
             # round(b1.pessimism, 2), 
-            round(b1.sadness, 2)
+            round(b1.sadness, 2),
+            report_id
             ]
             ## adds new row to dataframe
             ## len(df) used to specify the row number im updating
@@ -320,7 +336,7 @@ async def main():
     ws = await websockets.connect("wss://irc-ws.chat.twitch.tv:443")
     #await ws.send("CAP REQ :twitch.tv/tags twitch.tv/commands")
     await ws.send("NICK justinfan676767")
-    await ws.send("JOIN #krysttl")
+    await ws.send("JOIN #esfandtv")
     
     while True:
         msg = await ws.recv()
@@ -347,6 +363,10 @@ async def main():
                     if dropped_term_counter >= (len(trim)/2): ##> skips messages where more than half of words are emoji codes or non-words. 
                         # print(f"Message skipped, too many dropped terms.")
                         dropped_term_counter = 0 ##> resets dropped term counter so next message can be processed.
+                    elif len(df) == 30: ##> checks rows of pandas dataframe, exports data as .csv (placeholder, can specify different exit condition later)
+                        export_to_s3(df)
+                        print("Chat ingestion ending, exporting data to S3 bucket ...")
+                        exit()
                     else:
                         if trim: ##> checks twitch message (with emoji codes filtered out) is not empty (null)
                             new_message = " ".join(trim) ##> converts trim from list to string (to be processed)
