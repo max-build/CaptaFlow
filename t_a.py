@@ -16,7 +16,9 @@ import argparse
 # import boto3 #type:ignore
 # from botocore.exceptions import ClientError #type:ignore
 
-reset_timer = False
+
+# inferences_bank:list = [] ##> list of tuples, stores message inferences that've been lifted from message batches as tuples
+##> superior to dataframes as dataframes need to be destroyed and re-created each time something is appended
 
 def main_func(streamer_name):
     with open("files/words_alpha.txt", "r") as words_alpha:
@@ -247,7 +249,11 @@ def main_func(streamer_name):
 
             timestamp = datetime.now() # fetches timestamp 
             timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S") # converts timestamp to string
+
+            ##> superior approach (appends batch readings to list of tuples, implement this once pipeline done.)
+            # inference_bank.append((timestamp_str, round(b1.joy, 2), round(b1.optimism, 2), round(b1.surprise, 2), round(b1.fear, 2), round(b1.anger, 2), round(b1.sadness, 2), report_id))
         
+            #> Dataframe that stored appended batch readings (horrifically memory inefficient)
             df.loc[len(df)] = [
                 timestamp_str, 
                 round(b1.joy, 2), 
@@ -335,7 +341,7 @@ def main_func(streamer_name):
                         if dropped_term_counter >= (len(trim)/2): ##> skips messages where more than half of words are emoji codes or non-words. 
                             # print(f"Message skipped, too many dropped terms.")
                             dropped_term_counter = 0 ##> resets dropped term counter so next message can be processed.
-                        elif len(df) == 1: ##> checks rows of pandas dataframe, exports data as .csv (placeholder, can specify different exit condition later)
+                        elif len(df) == 30: ##> checks rows of pandas dataframe, exports data as .csv (placeholder, can specify different exit condition later)
                             export_to_s3(df)
                             print("Chat ingestion ending, exporting data to S3 bucket ...")
                             exit()
