@@ -13,6 +13,10 @@ import boto3 #type:ignore
 from io import StringIO 
 import argparse
 
+pipe = pipeline("text-classification", model="cardiffnlp/twitter-roberta-base-emotion-multilabel-latest", top_k=None)
+##> moved this out of process_batch() to stop python from re-creating the RoBERTa model every single time a new batch is processed. 
+
+
 # import boto3 #type:ignore
 # from botocore.exceptions import ClientError #type:ignore
 
