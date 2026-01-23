@@ -2,6 +2,8 @@
 
 CaptaFlow is a real-time sentiment analysis application for identifying the dominant emotions in Twitch chat messages to provide audience engagement insights for creators.  
 
+
+## Architecture Diagram 
 I've included an architecture diagram below to show the tools involved and the sequence they're used in. 
 
 ![Architecture Diagram](./files/Architecture-Diagram.png)
