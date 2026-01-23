@@ -9,6 +9,7 @@ I've included an architecture diagram below to show the tools involved and the s
 ![Architecture Diagram](./files/Architecture-Diagram.png)
 
 
+
 ## Features
 
 ### Sentiment Analysis (with CardiffNLP) 
@@ -19,7 +20,8 @@ I've included an architecture diagram below to show the tools involved and the s
 - Streamers can use the detected emotion levels as audience engagement metrics by connected them to the moment in stream when they were recorded. 
 
 
-## Pipeline Output Previews
+
+## NLP Pipeline Output Previews
 These are displayed in terminal as the application runs and is seperate from visualisations as shown in QuickSuite.
 
 ### Message Readings 
