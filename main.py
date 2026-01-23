@@ -346,7 +346,7 @@ def main_func(streamer_name):
                         if dropped_term_counter >= (len(trim)/2): ##> skips messages where more than half of words are emoji codes or non-words. 
                             # print(f"Message skipped, too many dropped terms.")
                             dropped_term_counter = 0 ##> resets dropped term counter so next message can be processed.
-                        elif len(df) == 1: ##> checks rows of pandas dataframe, exports data as .csv (placeholder, can specify different exit condition later)
+                        elif len(df) == 10: ##> checks rows of pandas dataframe, exports data as .csv (placeholder, can specify different exit condition later)
                             export_to_s3(df)
                             print("Chat ingestion ending, exporting data to S3 bucket ...")
                             exit()
@@ -371,10 +371,10 @@ def main_func(streamer_name):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run Twitch Sentiment Analysis")
-    parser.add_argument("streamer_name", type=str, help="The Twitch username to analyze")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("streamer_name", type=str)
     args = parser.parse_args()
-    print(f"Starting analysis for: {args.streamer_name}")
+    print(f"Commencing sentiment analysis for: {args.streamer_name}")
     main_func(args.streamer_name)
 
 
