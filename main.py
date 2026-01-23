@@ -12,6 +12,7 @@ import logging
 import boto3 #type:ignore
 from io import StringIO 
 import argparse
+import credentials
 
 pipe = pipeline("text-classification", model="cardiffnlp/twitter-roberta-base-emotion-multilabel-latest", top_k=None)
 ##> moved this out of process_batch() to stop python from re-creating the RoBERTa model every single time a new batch is processed. 
@@ -30,7 +31,7 @@ def main_func(streamer_name):
         word_db = set(lines) ##> set gives lookups O(1) timing
 
     def export_to_s3(dataframe):
-        bucket = "dataframe-container"
+        bucket = credentials.bucket
         csv_buffer = StringIO()
         dataframe.to_csv(csv_buffer)
         s3_resource = boto3.resource('s3')
@@ -345,7 +346,7 @@ def main_func(streamer_name):
                         if dropped_term_counter >= (len(trim)/2): ##> skips messages where more than half of words are emoji codes or non-words. 
                             # print(f"Message skipped, too many dropped terms.")
                             dropped_term_counter = 0 ##> resets dropped term counter so next message can be processed.
-                        elif len(df) == 30: ##> checks rows of pandas dataframe, exports data as .csv (placeholder, can specify different exit condition later)
+                        elif len(df) == 1: ##> checks rows of pandas dataframe, exports data as .csv (placeholder, can specify different exit condition later)
                             export_to_s3(df)
                             print("Chat ingestion ending, exporting data to S3 bucket ...")
                             exit()
