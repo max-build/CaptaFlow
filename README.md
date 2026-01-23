@@ -19,6 +19,20 @@ I've included an architecture diagram below to show the tools involved and the s
 - Streamers can use the detected emotion levels as audience engagement metrics by connected them to the moment in stream when they were recorded. 
 
 
-## Previews
+## Debugging Previews
 
-![Message Preview]
+### Message Readings 
+
+![Message Preview](./files/Message-Results.png)
+
+This console log displays the readings that are taken for each message.
+
+### Batch Results
+
+![Batch Results](./files/Batch-Results.png) 
+
+This console log displays the total sentiment scores for each batch of messages (10 messages per batch by default). 
+
+### Readings Summary 
+
+This console log prints all rows from the dataframe which all batch readings are added to, along with timestamps for when they were taken, and the stream ID the readings belong to. 
