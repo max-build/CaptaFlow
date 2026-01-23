@@ -29,6 +29,8 @@ These are displayed in terminal as the application runs and is seperate from vis
 ![Message Preview](./files/Message-Results.png)
 
 This console log displays the readings that are taken for each message.
+  - Note, TRUST, DISGUST, ANTICIPATION, and PESSIMISM are not included in the final batch result previews or the final reports, the reason for this is I observed that they didn't provide any additional insight into the
+    dominant moods in chat and overlapped too heavily with the other dominant emotions and so they were redundant. 
 
 ### Batch Results
 
