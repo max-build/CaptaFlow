@@ -4,4 +4,4 @@ CaptaFlow is a sentiment analysis tool for identifying the dominant emotions in 
 
 
 
-![Architecture Diagram]: 
+![Architecture Diagram](files/Architecture Diagram.png)
