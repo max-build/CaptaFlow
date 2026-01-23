@@ -35,4 +35,6 @@ This console log displays the total sentiment scores for each batch of messages 
 
 ### Readings Summary 
 
+![Readings-Summary](./files/Readings-Summary.png)
+
 This console log prints all rows from the dataframe which all batch readings are added to, along with timestamps for when they were taken, and the stream ID the readings belong to. 
