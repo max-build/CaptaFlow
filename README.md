@@ -19,3 +19,6 @@ I've included an architecture diagram below to show the tools involved and the s
 - Streamers can use the detected emotion levels as audience engagement metrics by connected them to the moment in stream when they were recorded. 
 
 
+## Previews
+
+![Message Preview]
