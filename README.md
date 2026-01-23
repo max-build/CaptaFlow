@@ -1,4 +1,4 @@
-# CaptaFlow
+# CaptaFlow (1.0)
 
 CaptaFlow is a real-time sentiment analysis tool for identifying the dominant emotions in twitch chat messages to provide thorough audience engagement insights. 
 
