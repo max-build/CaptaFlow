@@ -17,7 +17,7 @@ I've included an architecture diagram below to show the tools involved and the s
 - The application passes batched Twitch chat messages through a RoBERTa transformer (CardiffNLP) to identify the dominant emotions in each batch.
 - Each emotion receives a score from 0 to 1 representing how strongly that emotion is represented in that batch of messages.
 - Each batch of emotions is given a datetime timestamp so that the exact moment in the twitch stream when each batch was taken can be pinpointed.
-- Streamers can use the detected emotion levels as audience engagement metrics by connected them to the moment in stream when they were recorded. 
+- Streamers can use the detected emotion levels as audience engagement metrics by connecting them to the moment in stream when they were recorded. 
 
 
 
@@ -29,6 +29,8 @@ These are displayed in terminal as the application runs and is seperate from vis
 ![Message Preview](./files/Message-Results.png)
 
 This console log displays the readings that are taken for each message.
+  - Note, TRUST, DISGUST, ANTICIPATION, LOVE and PESSIMISM are not included in the final batch result previews or the final reports, the reason for this is I concluded that they didn't provide any additional insight into the
+    dominant moods in chat and overlapped too heavily with the other dominant emotions and so they were redundant. 
 
 ### Batch Results
 
