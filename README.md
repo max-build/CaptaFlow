@@ -49,8 +49,8 @@ This console log prints all rows from the dataframe which all batch readings are
 # Patch Notes
 
 ## 0.9.1 (24/01/26)
-- Revised method of exporting batch insight scores to S3
-- Batch scores are now stored in a list of tuples (instead of being appended to a dataframe as before)
+- Revised method of exporting batch insight scores to S3.
+- Batch scores are now stored in a list of tuples (instead of being appended to a dataframe as before) prior to exporting to S3.
 - Appending batch scores to the end of the dataframe had O(n) timing vs appending to a list of tuples which is O(1).
 - This allows the application to be more scalable and handle a higher velocity of concurrent throughput. 
 
