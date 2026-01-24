@@ -18,6 +18,24 @@ pipe = pipeline("text-classification", model="cardiffnlp/twitter-roberta-base-em
 ##> moved this out of process_batch() to stop python from re-creating the RoBERTa model every single time a new batch is processed. 
 
 
+##> Schema for pandas dataframe storing insights to be exported
+df = pd.DataFrame({
+    "timestamp": pd.Series(dtype="datetime64[ns]"),
+    "Joy": pd.Series(dtype="float"),
+    "Optimism": pd.Series(dtype="float"),
+    # "Love": pd.Series(dtype="float"),
+    # "Trust": pd.Series(dtype="float"),
+    # "Anticipation": pd.Series(dtype="float"),
+    "Surprise": pd.Series(dtype="float"),
+    "Fear": pd.Series(dtype="float"),
+    "Anger": pd.Series(dtype="float"),
+    # "Disgust": pd.Series(dtype="float"),
+    # "Pessimism": pd.Series(dtype="float"),
+    "Sadness": pd.Series(dtype="float"),
+    "report_id": pd.Series(dtype="datetime64[ns]")
+})
+
+
 # import boto3 #type:ignore
 # from botocore.exceptions import ClientError #type:ignore
 
@@ -30,30 +48,34 @@ def main_func(streamer_name):
         lines = [k.strip() for k in words_alpha]
         word_db = set(lines) ##> set gives lookups O(1) timing
 
-    def export_to_s3(dataframe):
-        bucket = credentials.bucket
-        csv_buffer = StringIO()
-        dataframe.to_csv(csv_buffer)
-        s3_resource = boto3.resource('s3')
-        s3_resource.Object(bucket, f'report_{report_id}.csv').put(Body=csv_buffer.getvalue())
+    def export_to_s3(list_of_tuples):
+        if len(list_of_tuples) == 3:
+            print("Insights list queue full, load to dataframe.")
+            for j in b1.insights_list:
+                df.loc[len(df)] = [
+                    j[0],
+                    round(j[1], 2),
+                    round(j[2], 2),
+                    round(j[3], 2),
+                    round(j[4], 2),
+                    round(j[5], 2),
+                    round(j[6], 2),
+                    j[7] 
+                ]
+            print(df.head(len(df)))
+            bucket = credentials.bucket
+            csv_buffer = StringIO()
+            df.to_csv(csv_buffer)
+            s3_resource = boto3.resource('s3')
+            s3_resource.Object(bucket, f'report_{report_id}.csv').put(Body=csv_buffer.getvalue())
+            print("Dataframe successfully persisted to S3, clearing b1.insights_list, resetting df.")
+            b1.insights_list.clear()
+            df[:] = []
+        else:
+            pass
 
 
-    ##> Schema for pandas dataframe storing insights to be exported
-    df = pd.DataFrame({
-        "timestamp": pd.Series(dtype="datetime64[ns]"),
-        "Joy": pd.Series(dtype="float"),
-        "Optimism": pd.Series(dtype="float"),
-        # "Love": pd.Series(dtype="float"),
-        # "Trust": pd.Series(dtype="float"),
-        # "Anticipation": pd.Series(dtype="float"),
-        "Surprise": pd.Series(dtype="float"),
-        "Fear": pd.Series(dtype="float"),
-        "Anger": pd.Series(dtype="float"),
-        # "Disgust": pd.Series(dtype="float"),
-        # "Pessimism": pd.Series(dtype="float"),
-        "Sadness": pd.Series(dtype="float"),
-        "report_id": pd.Series(dtype="datetime64[ns]")
-    })
+
 
     ##> report_id stamper, creates column where every row contains this value so AWS quicksuite can differentiate the reports. 
     report_id = datetime.now() ##> fetches timestamp 
@@ -70,6 +92,8 @@ def main_func(streamer_name):
 
 
     class batch():
+
+
         def __init__(self):
             ##> store accumulative weights from sentiments for when averages are calculated
             self._joy = 0.0
@@ -84,11 +108,21 @@ def main_func(streamer_name):
             self._pessimism = 0.0
             self._sadness = 0.0
 
+            self._insights_list:list = [] #> list of tuples, stores batch insights in tuple form
             self._message_queue = []
 
             ##> getters and setters
             ##> getter syntax: print(obj.name)
             ##> setter syntax: obj.name = "John"
+
+
+        @property
+        def insights_list(self):
+            return self._insights_list
+
+        @insights_list.setter
+        def insights_list(self, insights):
+            self._insights_list.append(insights)
 
         @property
         def message_queue(self):
@@ -201,6 +235,8 @@ def main_func(streamer_name):
             # print(f"PESSIMISM score: {round(self.pessimism, 2)}")
             print(f"SADNESS score: {round(self.sadness, 2)}")
             print("\n")
+            print((("timestamp"), ("Joy"), ("Optimism"), ("Surprise"), ("Fear"), ("Anger"), ("Sadness"), ("report_id")))
+
 
         def reset_message_queue(self):
             self.message_queue.clear()
@@ -258,25 +294,18 @@ def main_func(streamer_name):
             ##> superior approach (appends batch readings to list of tuples, implement this once pipeline done.)
             # inference_bank.append((timestamp_str, round(b1.joy, 2), round(b1.optimism, 2), round(b1.surprise, 2), round(b1.fear, 2), round(b1.anger, 2), round(b1.sadness, 2), report_id))
         
-            #> Dataframe that stored appended batch readings (horrifically memory inefficient)
-            df.loc[len(df)] = [
-                timestamp_str, 
+            
+            self.insights_list.append((
+                (timestamp_str), 
                 round(b1.joy, 2), 
-                round(b1.optimism, 2), 
-                # round(b1.love, 2), 
-                # round(b1.trust, 2), 
-                # round(b1.anticipation, 2), 
+                round(b1.optimism, 2),
                 round(b1.surprise, 2), 
                 round(b1.fear, 2), 
-                round(b1.anger, 2), 
-                # round(b1.disgust, 2), 
-                # round(b1.pessimism, 2), 
+                round(b1.anger, 2),
                 round(b1.sadness, 2),
-                report_id
-                ]
-                ## adds new row to dataframe
-                ## len(df) used to specify the row number im updating
-                ## len(df) will always point to the next row (which is always empty)
+                (report_id)) 
+                )
+            ##> check length of insights_list to check if == 30, at that point, add contents to dataframe and persist to S3. 
 
 
         def reset_weights(self):
@@ -295,7 +324,7 @@ def main_func(streamer_name):
     b1 = batch()
 
 
-    ## adds messages to b1's queue 
+    ##> adds messages to b1's queue 
     def add_to_queue(message): 
         if len(b1.message_queue) < 10:
                 b1.message_queue = message # appends message to b1's message queue
@@ -305,13 +334,20 @@ def main_func(streamer_name):
             print(f"Queue full, processing batch. ")
             b1.process_batch()
             b1.display_results()
-            print(df)
+            # print(df)
+            for t in b1.insights_list:
+                print(t)
             print("\nBatch processed. ")
             b1.reset_weights()
             print("Weights reset.")
             b1.reset_message_queue()
             print("Message queue reset.")
             print("\n")
+
+    ##> adds list of tuples to dataframe to be exported to S3
+    def add_to_df(list_of_insights):
+        pass
+
 
 
 
@@ -346,8 +382,9 @@ def main_func(streamer_name):
                         if dropped_term_counter >= (len(trim)/2): ##> skips messages where more than half of words are emoji codes or non-words. 
                             # print(f"Message skipped, too many dropped terms.")
                             dropped_term_counter = 0 ##> resets dropped term counter so next message can be processed.
-                        elif len(df) == 10: ##> checks rows of pandas dataframe, exports data as .csv (placeholder, can specify different exit condition later)
-                            export_to_s3(df)
+                        # elif len(df) == 2: ##> checks rows of pandas dataframe, exports data as .csv (placeholder, can specify different exit condition later)
+                        elif len(b1.insights_list) == 6:
+                            export_to_s3(df) ##> persists insights to s3, disabled for now
                             print("Chat ingestion ending, exporting data to S3 bucket ...")
                             exit()
                         else:
@@ -378,13 +415,10 @@ if __name__ == "__main__":
     main_func(args.streamer_name)
 
 
-
-
-
-
-
-
-
+##> next tasks: insights are now stored in tuples and added to dataframe at specified intervals [DONE]
+##> i now need to re-think the exit condition as there will be multiple calls to export_to_S3 
+    ##> im moving from exporting all of insights in a dataframe at once to doing regular intervals
+    ##> of storing them in a dataframe and then exporting those dataframes (maybe 30 batch insights each)
 
 
 
