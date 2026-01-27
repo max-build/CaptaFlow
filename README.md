@@ -22,7 +22,7 @@ I've included an architecture diagram below to show the tools involved and the s
 
 
 ## NLP Pipeline Output Previews
-These are displayed in terminal as the application runs and is seperate from visualisations as shown in QuickSuite.
+**These are displayed in terminal as the application runs and is seperate from visualisations as shown in QuickSuite.**
 
 ### Message Readings 
 
