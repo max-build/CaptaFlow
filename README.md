@@ -10,8 +10,11 @@ I've included an architecture diagram below to show the tools involved and the s
 
 ## Technologies
 
+- WebSocket
 - Python
 - Pandas
+- PyTorch
+- [CardiffNLP - Twitter RoBERTa Base](https://huggingface.co/cardiffnlp/twitter-roberta-base)
 - AWS S3
 - AWS Glue
 - AWS Athena
