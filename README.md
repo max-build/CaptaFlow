@@ -11,7 +11,7 @@ I've included an architecture diagram below to show the tools involved and the s
 ## Technologies
 
 - WebSocket -> Message ingestion from streaming platforms. 
-- Python -> ETL, cleaning/normalising messages, passing messages through sentiment analysis. 
+- Python -> ETL, cleaning/normalising messages, passing messages through sentiment analysis transformer. 
 - Pandas -> Schema enforcement, storing sentiment readings to be persisted to cloud in .csv format. 
 - PyTorch -> Enables sentiment analysis pipeline. 
 - [CardiffNLP - Twitter RoBERTa Base](https://huggingface.co/cardiffnlp/twitter-roberta-base) -> Sentiment analysis model used. 
