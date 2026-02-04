@@ -10,15 +10,15 @@ I've included an architecture diagram below to show the tools involved and the s
 
 ## Technologies
 
-- WebSocket (Message ingestion from streaming platforms)
-- Python (ETL, cleaning/normalising messages, passing messages through sentiment analysis)
-- Pandas (Schema enforcement, storing sentiment readings to be persisted to cloud in .csv format)
-- PyTorch (Enables sentiment analysis pipeline)
-- [CardiffNLP - Twitter RoBERTa Base](https://huggingface.co/cardiffnlp/twitter-roberta-base)
-- AWS S3 (Stores finalised batched message sentiment readings)) 
-- AWS Glue (ELT, transforms batch readings to make values more readable) 
-- AWS Athena (Connects Glue to QuickSuite so data can be visualised) 
-- AWS QuickSuite (Creates visualisations based on sentiment readings)
+- WebSocket -> Message ingestion from streaming platforms. 
+- Python -> ETL, cleaning/normalising messages, passing messages through sentiment analysis. 
+- Pandas -> Schema enforcement, storing sentiment readings to be persisted to cloud in .csv format. 
+- PyTorch -> Enables sentiment analysis pipeline. 
+- [CardiffNLP - Twitter RoBERTa Base](https://huggingface.co/cardiffnlp/twitter-roberta-base) -> Sentiment analysis model used. 
+- AWS S3 -> Stores finalised batched message sentiment readings. 
+- AWS Glue -> ELT, transforms batch readings to make values more readable. 
+- AWS Athena -> Connects Glue to QuickSuite so data can be visualised. 
+- AWS QuickSuite -> Creates visualisations based on sentiment readings. 
 
 
 ## Features
