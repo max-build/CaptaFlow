@@ -16,8 +16,8 @@ I've included an architecture diagram below to show the tools involved and the s
 - PyTorch -> Enables sentiment analysis pipeline. 
 - [CardiffNLP - Twitter RoBERTa Base](https://huggingface.co/cardiffnlp/twitter-roberta-base) -> Sentiment analysis model used. 
 - AWS S3 -> Stores finalised batched message sentiment readings. 
-- AWS Glue -> ELT, transforms batch readings to make values more readable. 
-- AWS Athena -> Connects Glue to QuickSuite so data can be visualised. 
+- AWS Glue -> Catalogues data to be accessed via Athena. 
+- AWS Athena -> Enables data catalogues to be accessed in QuickSuite  
 - AWS QuickSuite -> Creates visualisations based on sentiment readings. 
 
 
