@@ -17,7 +17,7 @@ I've included an architecture diagram below to show the tools involved and the s
 - [CardiffNLP - Twitter RoBERTa Base](https://huggingface.co/cardiffnlp/twitter-roberta-base) -> Sentiment analysis model used. 
 - AWS S3 -> Stores finalised batched message sentiment readings. 
 - AWS Glue -> Catalogues data to be accessed via Athena. 
-- AWS Athena -> Enables data catalogues to be accessed in QuickSuite  
+- AWS Athena -> Enables data catalogues to be accessed in QuickSuite.  
 - AWS QuickSuite -> Creates visualisations based on sentiment readings. 
 
 
