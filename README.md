@@ -58,7 +58,7 @@ This console log prints all rows from the dataframe which all batch readings are
 # Roadmap
 - Migrate application to the cloud (AWS or Azure) so the pipeline can run autonomously and benefit from elastic compute resource provisioning.
 - Integrate external ingestion (Kafka or Kiness) to ease backpressure on CaptaFlow, allow for replayability of incoming messages. 
-- Implement idempotency: its critical that reconnects, disconnects or source related hitches don't cause to duplicate rows.
+- Implement idempotency: its critical that reconnects, disconnects or source related hitches don't produce duplicate rows.
 - Achieve disconnect resilience: CaptaFlow needs to detect when a disconnect has occured and re-commence ingestion autonomously.
 
 # Patch Notes
