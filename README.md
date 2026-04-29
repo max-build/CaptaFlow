@@ -18,7 +18,8 @@ I've included an architecture diagram below to show the tools involved and the s
 - AWS S3 -> Stores finalised batched message sentiment readings. 
 - AWS Glue -> Catalogues data to be accessed via Athena. 
 - AWS Athena -> Enables data catalogues to be accessed in ~~QuickSuite~~.  
-- ~~AWS QuickSuite -> Creates visualisations based on sentiment readings.~~ (I have switched from QuickSuite as a cost saving measure, as of 29/04/26 I am exploring alternatives and plan to release an offline version that can be run locally. 
+- ~~AWS QuickSuite -> Creates visualisations based on sentiment readings.~~ 
+(I have switched from QuickSuite as a cost saving measure, as of 29/04/26 I am exploring alternatives and plan to release an offline version that can be run locally. 
 
 
 ## Features
